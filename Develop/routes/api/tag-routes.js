@@ -45,13 +45,24 @@ router.post('/', async (req, res) => {
   // update a tag's name by its `id` value
 router.put('/:id', async (req, res) => {
   try{
-    
+    await Tag.update({ tag_name: req.body.tag_name }, { where: { id: req.params.id } });
+    const updatedTag = await Tag.findByPk(req.params.id);
+    res.json(updatedTag);
+  } catch (error) {
+    console.error(err);
+    res.status(500).json(err);
   }
+  });
 
-});
-
-router.delete('/:id', (req, res) => {
   // delete on tag by its `id` value
+router.delete('/:id', async (req, res) => {
+  try {
+    const qtyRemoved = await Tag.destroy({ where: { id: req.params.id } });
+    res.json(`${qtyRemoved} tag were removed from the database`);
+  } catch (error) {
+    console.error(err);
+    res.status(500).json(err);
+  }
 });
 
 module.exports = router;
