@@ -23,6 +23,8 @@ router.get('/', async (req, res) => {
 
 
 // get one product
+  // find a single product by its `id`
+  // be sure to include its associated Category and Tag data
 router.get('/:id', async (req, res) => {
   try {
     const product = await Product.findByPk(req.params.id, {
@@ -36,29 +38,10 @@ router.get('/:id', async (req, res) => {
     res.status(500).json(err)
   }
 });
-  // find a single product by its `id`
-  // be sure to include its associated Category and Tag data
-
 
 // create new product
-router.post('/', async (req, res) => {
-  try{
-    const product = await Product.create(req.body);
-    if (req.body.tagIds && req.body.tagIds.length) {
-      const productTagIds = req.body.tagIds.map((tag_id) => ({
-        product_id: product.id,
-        tag_id,
-      }));
-      await ProductTag.bulkCreate(productTagIds);
-    }
-    res.status(200).json(product);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json(error);
-  }
-});
-
-  /* req.body should look like this...
+router.post('/', (req, res) => {
+    /* req.body should look like this...
     {
       product_name: "Basketball",
       price: 200.00,
@@ -133,8 +116,19 @@ router.put('/:id', (req, res) => {
     });
 });
 
-router.delete('/:id', (req, res) => {
-  // delete one product by its `id` value
+router.delete('/:id', async (req, res) => {
+  try{
+    const product = await Product.destroy({
+      where: {
+        id:req.params.id
+      }
+    })
+    res.status(200).json(product)
+  } catch (err) {
+    console.error(err);
+    res.status(500).json(err)
+  }
+
 });
 
 module.exports = router;
